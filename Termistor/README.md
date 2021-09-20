@@ -1,36 +1,27 @@
-# INA219
+# Termistor
 
 ## Propósito
- Pra que serve o sensor?
+  A biblioteca faz a conversão de n valores de adc de sensores térmicos em graus Célsius.
 
 ## Exemplo
 ```c
-ina219_t ina = {
-        .hi2c = &hi2c1,
-        .address = (0x40 << 1)
-};
 
-INA_Reset(ina);
+   float *temp_;
+   static uint32_t value[3];     //registrador dos valores de adc
+   HAL_ADC_Start_DMA(&hadc1, value, 3);  //start adc in dma mode with tree channels
 
-ina219_config_t config = {
-        .mode = Cont_Shunt_Bus_voltage,
-        .shuntADCResolution = SMode_12bit,
-        .busADCResolution = BMode_12bit,
-        .shuntVoltageRange = Range_320,
-        .busVoltageRange = Bus_32v
-};
 
-INA_Configuration(ina, config);
-INA_Calibration(ina, 1.0, 0.1);
-
-ina219_values_t valor;
-INA_Values(ina, &valor);
-
-printf("Valor: %f %f\r\n", valor.Bus_Voltage, valor.Shunt_Voltage);
+	  temp_ = Temp_GetValue(value, 3);
+   if(temp_[1]>30)
+   {
+		 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+   }
 
 ```
 ## Documentação
  Como estão organizadas as funções?
+A biblioteca contém uma única função, Temp_GetValue, onde os argumentos value e Lenght recebem o endereço do vetor com os valores em adc e o número de células para converção
 
 ## Notas
  Tem alguma coisa que é bom saber antes de usar a biblioteca?
+ Os fatores B, To e Ro definidos na biblioteca são dados pelo fabricante, sendo To e Ro, uma peratura e resistencia específicas sobre o termistor.
